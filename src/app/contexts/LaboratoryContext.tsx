@@ -80,9 +80,20 @@ export function LaboratoryProvider({ children }: { children: React.ReactNode }) 
           result: data[0].result || '-'
         };
         setTests(prev => [...prev, newTest]);
+      } else {
+        throw error || new Error("Failed to insert into Supabase");
       }
     } catch (e) {
       console.error("Error adding lab test:", e);
+      // Fallback for mock data when Supabase is down/missing
+      const newTest: LabTest = {
+        id: Date.now(),
+        test: test.test,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        status: test.status,
+        result: test.result || '-'
+      };
+      setTests(prev => [newTest, ...prev]);
     }
   };
 
