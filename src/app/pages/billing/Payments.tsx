@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, Smartphone, DollarSign, ArrowLeft, Loader2 } from "lucide-react";
+import { CreditCard, Smartphone, DollarSign, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useBilling } from "../../contexts/BillingContext";
 
@@ -12,6 +12,7 @@ export default function Payments() {
   const [serviceName, setServiceName] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [phone, setPhone] = useState("");
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const serviceCharge = amount > 0 ? 100 : 0;
   const totalAmount = amount + serviceCharge;
@@ -40,16 +41,57 @@ export default function Payments() {
     setTimeout(() => {
       markAsPaid(invoiceId);
       setIsProcessing(false);
+      setPaymentSuccess(true);
 
       // Clean up session storage
       sessionStorage.removeItem("payment_invoice_id");
       sessionStorage.removeItem("payment_invoice_amount");
       sessionStorage.removeItem("payment_invoice_service");
-
-      // Go back to billing
-      navigate("/billing");
     }, 2000);
   };
+
+  if (paymentSuccess) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white p-8 rounded-xl border border-green-200 shadow-sm text-center max-w-md mx-auto mt-12">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful!</h1>
+          <p className="text-slate-600 mb-8">Your payment has been successfully processed.</p>
+
+          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-left mb-8">
+            <h3 className="font-semibold text-slate-900 mb-4 border-b border-slate-200 pb-2">Receipt Details</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Receipt No:</span>
+                <span className="font-medium text-slate-900">REC-{Math.floor(Math.random() * 100000).toString().padStart(6, '0')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Service:</span>
+                <span className="font-medium text-slate-900">{serviceName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Date:</span>
+                <span className="font-medium text-slate-900">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              <div className="flex justify-between pt-2 mt-2 border-t border-slate-200 font-bold">
+                <span className="text-slate-900">Total Paid:</span>
+                <span className="text-green-600">KES {totalAmount.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate("/billing")}
+            className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+          >
+            Return to Billing
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
