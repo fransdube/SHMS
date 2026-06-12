@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
 type Role = "patient" | "doctor" | "admin" | null;
 
@@ -58,6 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(JSON.parse(saved));
         }
 
+        if (!isSupabaseConfigured) {
+          setLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
 
         if (session?.user) {
@@ -86,7 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     init();
 
-    const { data: { subscription } } =
+    if (isSupabaseConfigured) {
+      const { data: { subscription } } =
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
           const { data: profile } = await supabase
@@ -115,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
     return () => subscription.unsubscribe();
+    }
   }, []);
 
   // MOCK LOGIN (optional)
@@ -135,11 +142,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("afya_user");
     localStorage.removeItem("isLoggedIn");
-    await supabase.auth.signOut();
+    if (isSupabaseConfigured) {
+      await supabase.auth.signOut();
+    }
   };
 
   // LOGIN (FIXED — NO SQUIGGLY ANYMORE)
   const supabaseLogin = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      // Mock login for frontend demonstration
+      const mockUser: User = {
+        id: "mock-1",
+        name: "Mock User",
+        email,
+        role: "patient",
+      };
+      setUser(mockUser);
+      localStorage.setItem("afya_user", JSON.stringify(mockUser));
+      return { user: mockUser };
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -176,6 +197,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     role: Role,
     fullName: string
   ) => {
+    if (!isSupabaseConfigured) {
+      // Mock signup for frontend demonstration
+      const user: User = {
+        id: "mock-" + Date.now(),
+        name: fullName,
+        email,
+        role,
+      };
+      localStorage.setItem("afya_user", JSON.stringify(user));
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
