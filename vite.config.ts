@@ -18,7 +18,17 @@ function figmaAssetResolver() {
 
 export default defineConfig({
   // Force base path resolution to avoid blank screens on hosting platforms
-  base: '/', 
+  base: '/',
+  server: {
+    host: '0.0.0.0',
+    port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
+    strictPort: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
+    strictPort: true,
+  },
   plugins: [
     figmaAssetResolver(),
     react(),
