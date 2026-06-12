@@ -23,6 +23,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
     strictPort: true,
+    allowedHosts: true,
     // Allow Render host during development/SSR testing if needed
     allowedHosts: ['shms-lka0.onrender.com'],
   },
@@ -30,6 +31,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
     strictPort: true,
+    allowedHosts: true,
     // Allow Render host for preview builds
     allowedHosts: ['shms-lka0.onrender.com'],
   },
