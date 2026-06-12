@@ -6,7 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 export default function Laboratory() {
   const { tests, processTest, addTest } = useLaboratory();
   const { user } = useAuth();
-  const isLabStaff = user?.role === 'admin' || user?.role === 'doctor';
+  const isLabStaff = true; // user?.role === 'admin' || user?.role === 'doctor';
 
   const [isProcessing, setIsProcessing] = useState<number | null>(null);
   const [resultInput, setResultInput] = useState("");
