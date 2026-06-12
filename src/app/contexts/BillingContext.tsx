@@ -83,9 +83,20 @@ export function BillingProvider({ children }: { children: React.ReactNode }) {
           status: data[0].status as any
         };
         setInvoices(prev => [...prev, newInvoice]);
+      } else {
+        throw error || new Error("Failed to insert into Supabase");
       }
     } catch (e) {
       console.error("Error generating bill:", e);
+      // Fallback for mock data when Supabase is down/missing
+      const newInvoice: Invoice = {
+        id: Date.now(),
+        service: bill.service,
+        amount: bill.amount,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        status: bill.status
+      };
+      setInvoices(prev => [newInvoice, ...prev]);
     }
   };
 
